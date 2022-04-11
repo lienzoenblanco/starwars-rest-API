@@ -2,15 +2,14 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-from flask import Flask, request, jsonify, url_for, Blueprint
+from flask import Flask, request, jsonify, url_for
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, Planet, Character, Favorite
-
-api = Blueprint("api", __name__)
+#from models import Person
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -73,37 +72,37 @@ def get_planet(planet_id):
 
     return jsonify(response), 200
 
-@api.route("/favorite", methods=["POST"])
-def add_favorite():
+@api.route("/favourite", methods=["POST"])
+def add_favourite():
     body = request.get_json()
 
     if body["type"] == "character":
-        new_favorite = Favorite(user_id=body["user_id"], character_id=body["character_id"])
+        new_favourite = Favourite(user_id=body["user_id"], character_id=body["character_id"])
     elif body["type"] == "planet":
-        new_favorite = Favorite(user_id=body["user_id"], planet_id=body["planet_id"])
+        new_favourite = Favourite(user_id=body["user_id"], planet_id=body["planet_id"])
        
-    db.session.add(favorite)
+    db.session.add(new_favourite)
     db.session.commit()
 
-    return jsonify(f"A new favorite is added: {new_favorite.serialize()}"), 200
+    return jsonify(f"A new favourite is added: {new_favourite.serialize()}"), 200
 
-@api.route("/favorite/<int:user_id>", methods=["GET"])
-def get_all_favorites(user_id):
-    c = favorite()
-    return jsonify(c.get_all_favorites(user_id)), 200
+@api.route("/favourite/<int:user_id>", methods=["GET"])
+def get_all_favourites(user_id):
+    c = Favourite()
+    return jsonify(c.get_all_favourites(user_id)), 200
 
 
-@api.route("/favorite/<int:favorite_id>", methods=["DELETE"])
-def delete_favorite(favorite_id):
-    favorite = Favorite.query.get(favorite_id)
+@api.route("/favourite/<int:favourite_id>", methods=["DELETE"])
+def delete_favourite(favourite_id):
+    favourite = Favourite.query.get(favourite_id)
 
-    if favorite == None:
-        return f"There is no favorite with ID '{favorite_id}'"
+    if favourite == None:
+        return f"There is no favourite with ID '{favourite_id}'"
     else:
-        favorite.query.filter_by(id=favorite_id).delete()
+        Favourite.query.filter_by(id=favourite_id).delete()
         db.session.commit()
 
-        return jsonify(f"favorite with ID '{favorite_id}' has been deleted!!"), 200 
+        return jsonify(f"Favourite with ID '{favourite_id}' has been deleted!!"), 200 
 
 
 # this only runs if `$ python src/main.py` is executed
